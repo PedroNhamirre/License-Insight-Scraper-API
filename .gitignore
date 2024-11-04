@@ -1,0 +1,65 @@
+# Ignorar arquivos e diretórios do sistema operacional
+*.DS_Store
+*.log
+*.pot
+*.pyc
+*.pyo
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Arquivos e pastas Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ambiente virtual (inclui bin/, lib/, include/, lib64/ e pyvenv.cfg)
+venv/
+env/
+bin/
+lib/
+lib64/
+include/
+pyvenv.cfg
+venv.bak/
+env.bak/
+
+# Arquivos do Django
+*.sqlite3
+db.sqlite3
+inattro/db.sqlite3
+/staticfiles/
+/media/
+
+# Arquivos de configuração sensíveis
+.env
+.env.*
+
+# Cobertura de testes e outros arquivos temporários
+coverage/
+.tox/
+*.bak
+
+# Arquivos do PyCharm ou outros IDEs
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Arquivos de compilação do sistema
+*.exe
+*.dll
+*.so
+*.dylib
+*.zip
+*.tar.gz
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Arquivos temporários específicos do WSL
+.cache/
+.wslconfig
+lib64
