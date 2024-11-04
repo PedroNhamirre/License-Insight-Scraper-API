@@ -38,8 +38,9 @@ Execute the following commands to install the dependencies:
 ```
 git clone https://github.com/PedroNhamirre/License-Insight-Scraper-API.git
 ```
+
 ```
-cd inattro
+cd License-Insight-Scraper-API/inattro
 ```
 ```
 pip install -r requirements.txt
