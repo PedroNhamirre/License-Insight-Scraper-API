@@ -57,7 +57,6 @@ python3 manage.py runserver
 
 To view the API documentation and test the endpoints, you can access the Swagger UI at `http://localhost:8000/swagger/`.
 
-License Insight is made with 🖤 por ***Pedro Nhamirre***.
+License Insight is made with ❤️ por ***Pedro Nhamirre***.
 
 Feel free to reach out if you need any more assistance or adjustments!
-
