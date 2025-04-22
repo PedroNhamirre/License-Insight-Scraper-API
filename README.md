@@ -35,34 +35,34 @@ To install and run License Insight, you will need the following tools:
 
 Execute the following commands to install the dependencies:
 
+- Clonar o repositório
 ```bash
-# Clonar o repositório
 git clone https://github.com/PedroNhamirre/License-Insight-Scraper-API.git
-```
-```
 cd License-Insight-Scraper-API/inattro
 ```
+- Criar um ambiente virtual e activar para Linux/macOS
 ```
-# Criar um ambiente virtual
 python3 -m venv venv
+source venv/bin/activate    
 ```
+- Criar um ambiente virtual e activar para ara Windows
 ```
-# Activar o ambiente virtual
-source venv/bin/activate        # Para Linux/macOS
+python3 -m venv venv
+venv\Scripts\activate     
 ```
+-  Instalar as dependências
 ```
-venv\Scripts\activate           # Para Windows
-```
-```
-# Instalar as dependências
 pip3 install -r requirements.txt
 ```
+- Aplicar as migrações do Django
 ```
-# Aplicar as migrações do Django
 python3 manage.py migrate
 ```
 ```
-# Iniciar o servidor de desenvolvimento
+python manage.py collectstatic
+```
+- Iniciar o servidor de desenvolvimento
+```
 python3 manage.py runserver
 ```
 
