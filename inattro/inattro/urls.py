@@ -37,5 +37,6 @@ urlpatterns = [
     ).with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
-# Adicione a configuração para arquivos estáticos depois de definir urlpatterns
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# Adicione a configuração para arquivos estáticos apenas se DEBUG for True
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
