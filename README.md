@@ -58,9 +58,6 @@ pip3 install -r requirements.txt
 ```
 python3 manage.py migrate
 ```
-```
-python manage.py collectstatic
-```
 - Iniciar o servidor de desenvolvimento
 ```
 python3 manage.py runserver
