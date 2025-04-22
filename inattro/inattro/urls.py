@@ -4,8 +4,6 @@ from django.urls import path, include
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from django.conf import settings
-from django.conf.urls.static import static
 
 # Defina as URLs primeiro
 urlpatterns = [
@@ -36,7 +34,3 @@ urlpatterns = [
         permission_classes=(permissions.AllowAny,),
     ).with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
-
-# Adicione a configuração para arquivos estáticos apenas se DEBUG for True
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
