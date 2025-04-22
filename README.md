@@ -1,9 +1,12 @@
 # License Insight Scraper API
 
-**License Insight** is an API developed in Python that performs web scraping of data from the official INATRO website and summarizes essential information for developing a mobile application that queries the digital driver's license in Mozambique. This project is a simple personal learning experience focused on collecting and organizing relevant information.
+**License Insight** is an API developed purely for personal learning purposes using Python and Django. The project performs web scraping from the official INATRO website and summarizes relevant data for a potential mobile application that queries digital driver's license information in Mozambique.
+
+
+>[!WARNING]  
+>This project is **not production-ready**. It was built as a hands-on learning experience focused on data collection and organization.
 
 ## Description
-
 License Insight is designed to collect relevant data from the INATRO website and present this information in an organized and accessible manner. The API serves as an intermediary to facilitate the query of information regarding the digital driver's license in Mozambique, improving accessibility and user experience.
 
 ## Features
