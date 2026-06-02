@@ -24,6 +24,10 @@ class UpstreamUnavailableError(ScraperError):
     """Raised when the upstream website is unavailable or unstable."""
 
 
+class UpstreamLoginRejectedError(ScraperError):
+    """Raised when the upstream portal rejects the login flow before validation."""
+
+
 class ScraperParseError(ScraperError):
     """Raised when the upstream HTML no longer matches expected selectors."""
 
@@ -68,15 +72,31 @@ class LicenseScraper:
             return "Mozilla/5.0 (compatible; LicenseInsightBot/1.0)"
 
     async def _login(self, client: httpx.AsyncClient, query: LicenseQuery) -> None:
+        login_page = await self._get_html(client, str(self.settings.scraper_login_page_url))
+        csrf_token = self._extract_csrf_token(login_page)
         payload = {
             "n_carta": query.codigo,
             "data_nascimento": query.data_nascimento.isoformat(),
         }
+        recaptcha_token = query.recaptcha_token or self.settings.scraper_recaptcha_token
+        if recaptcha_token:
+            payload["g_recaptcha_response"] = recaptcha_token
+
+        headers = {
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Origin": "https://balcaovirtual.inatro.gov.mz",
+            "Referer": str(self.settings.scraper_login_page_url),
+            "X-Requested-With": "XMLHttpRequest",
+        }
+        if csrf_token:
+            headers["X-CSRF-Token"] = csrf_token
+
         response = await self._request_with_retry(
             client,
             "POST",
             str(self.settings.scraper_login_url),
             data=payload,
+            headers=headers,
         )
         try:
             data = response.json()
@@ -85,7 +105,23 @@ class LicenseScraper:
 
         if data.get("error"):
             message = str(data.get("message") or "Carta de conducao nao encontrada.")
+            if data.get("captcha_required"):
+                raise UpstreamLoginRejectedError("O portal externo exigiu verificacao reCAPTCHA adicional.")
+            if self._is_login_flow_rejection(message):
+                raise UpstreamLoginRejectedError(message)
             raise LicenseNotFoundError(message)
+
+    def _is_login_flow_rejection(self, message: str) -> bool:
+        normalized = self._normalize(message).lower()
+        return any(term in normalized for term in ("requisicao invalida", "recarregue", "captcha"))
+
+    def _extract_csrf_token(self, html: str) -> str | None:
+        soup = BeautifulSoup(html, "html.parser")
+        token = soup.find("meta", attrs={"name": "csrf-token"})
+        if not isinstance(token, Tag):
+            return None
+        content = token.get("content")
+        return content.strip() if isinstance(content, str) and content.strip() else None
 
     async def _get_html(self, client: httpx.AsyncClient, url: str) -> str:
         response = await self._request_with_retry(client, "GET", url)

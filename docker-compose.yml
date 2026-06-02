@@ -11,12 +11,14 @@ services:
       API_PREFIX: ${API_PREFIX:-/api/v1}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8000,http://localhost:3000}
       SCRAPER_LOGIN_URL: ${SCRAPER_LOGIN_URL:-https://balcaovirtual.inatro.gov.mz/app/ajax/auth/login.php}
+      SCRAPER_LOGIN_PAGE_URL: ${SCRAPER_LOGIN_PAGE_URL:-https://balcaovirtual.inatro.gov.mz/auth-login.php}
       SCRAPER_LICENSE_STATUS_URL: ${SCRAPER_LICENSE_STATUS_URL:-https://balcaovirtual.inatro.gov.mz/estado_carta.php}
       SCRAPER_DRIVING_TICKET_URL: ${SCRAPER_DRIVING_TICKET_URL:-https://balcaovirtual.inatro.gov.mz/consulta_multas.php}
       SCRAPER_TIMEOUT_SECONDS: ${SCRAPER_TIMEOUT_SECONDS:-20}
       SCRAPER_MAX_RETRIES: ${SCRAPER_MAX_RETRIES:-3}
       SCRAPER_BACKOFF_MULTIPLIER: ${SCRAPER_BACKOFF_MULTIPLIER:-0.8}
       SCRAPER_PROXY_URL: ${SCRAPER_PROXY_URL:-}
+      SCRAPER_RECAPTCHA_TOKEN: ${SCRAPER_RECAPTCHA_TOKEN:-}
       SCRAPER_VERIFY_SSL: ${SCRAPER_VERIFY_SSL:-true}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     ports:

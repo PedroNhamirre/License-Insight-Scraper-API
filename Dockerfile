@@ -24,6 +24,7 @@ RUN addgroup --system app && adduser --system --ingroup app app
 
 COPY --from=builder /opt/venv /opt/venv
 COPY app ./app
+COPY frontend ./frontend
 COPY main.py ./main.py
 
 USER app

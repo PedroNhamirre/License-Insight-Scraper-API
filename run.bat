@@ -12,12 +12,16 @@ if not exist "%VENV_DIR%\Scripts\python.exe" (
 
 call "%VENV_DIR%\Scripts\activate.bat"
 python -m pip install --upgrade pip
+if errorlevel 1 exit /b 1
+
 python -m pip install -r requirements.txt
+if errorlevel 1 exit /b 1
 
 if not exist ".env" (
     copy ".env.example" ".env" >nul
 )
 
-uvicorn "%APP_MODULE%" --host "%HOST%" --port "%PORT%"
+python -m uvicorn "%APP_MODULE%" --host "%HOST%" --port "%PORT%"
+if errorlevel 1 exit /b 1
 
 endlocal

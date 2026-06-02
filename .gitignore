@@ -64,3 +64,5 @@ build/
 .cache/
 .wslconfig
 lib64
+.venv
+.pytest_*

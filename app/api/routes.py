@@ -2,10 +2,21 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from loguru import logger
 
 from app.schemas.license import ErrorResponse, LicenseQuery, LicenseResponse
-from app.scraper.engine import LicenseNotFoundError, ScraperParseError, UpstreamUnavailableError
+from app.scraper.engine import (
+    LicenseNotFoundError,
+    ScraperParseError,
+    UpstreamLoginRejectedError,
+    UpstreamUnavailableError,
+)
 from app.services.license_service import LicenseService, get_license_service
 
 router = APIRouter(prefix="/licenses", tags=["Cartas de Conducao"])
+
+
+def _mask_code(code: str) -> str:
+    if len(code) <= 4:
+        return "****"
+    return f"{code[:2]}***{code[-2:]}"
 
 
 @router.post(
@@ -25,7 +36,7 @@ router = APIRouter(prefix="/licenses", tags=["Cartas de Conducao"])
                 "application/json": {
                     "example": {
                         "info_carta": {
-                            "numero_carta": "123456789",
+                            "numero_carta": "12345678",
                             "nome_completo": "Joao Silva",
                             "data_nascimento": "1995-06-15",
                             "telefone": "+258840000000",
@@ -44,6 +55,7 @@ router = APIRouter(prefix="/licenses", tags=["Cartas de Conducao"])
             },
         },
         404: {"model": ErrorResponse, "description": "Carta nao encontrada."},
+        424: {"model": ErrorResponse, "description": "O portal externo exige uma dependencia humana, como reCAPTCHA."},
         502: {"model": ErrorResponse, "description": "Falha no site externo ou no parser."},
     },
 )
@@ -54,16 +66,22 @@ async def consult_license(
     try:
         return await service.consult(payload)
     except LicenseNotFoundError as exc:
-        logger.warning("License not found for codigo={}: {}", payload.codigo, exc)
+        logger.warning("License not found for codigo={}: {}", _mask_code(payload.codigo), exc)
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except UpstreamLoginRejectedError as exc:
+        logger.warning("Upstream login rejected for codigo={}: {}", _mask_code(payload.codigo), exc)
+        raise HTTPException(
+            status_code=status.HTTP_424_FAILED_DEPENDENCY,
+            detail="O portal externo exige validacao humana/reCAPTCHA para concluir a consulta.",
+        ) from exc
     except ScraperParseError as exc:
-        logger.error("Unexpected upstream HTML structure for codigo={}: {}", payload.codigo, exc)
+        logger.error("Unexpected upstream HTML structure for codigo={}: {}", _mask_code(payload.codigo), exc)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="A estrutura do site externo mudou ou retornou dados invalidos.",
         ) from exc
     except UpstreamUnavailableError as exc:
-        logger.error("Upstream unavailable for codigo={}: {}", payload.codigo, exc)
+        logger.error("Upstream unavailable for codigo={}: {}", _mask_code(payload.codigo), exc)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="O site externo esta indisponivel no momento.",

@@ -20,4 +20,4 @@ if [ ! -f ".env" ]; then
   cp .env.example .env
 fi
 
-exec uvicorn "$APP_MODULE" --host "$HOST" --port "$PORT"
+exec python -m uvicorn "$APP_MODULE" --host "$HOST" --port "$PORT"
