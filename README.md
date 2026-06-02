@@ -58,7 +58,7 @@ sh run.sh
 Windows:
 
 ```bat
-run.bat
+.\run.bat
 ```
 
 Os scripts criam `.venv`, instalam as dependencias, geram `.env` se necessario e iniciam a API.
