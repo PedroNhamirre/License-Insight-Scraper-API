@@ -1,0 +1,30 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: license-insight-api
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_NAME: ${APP_NAME:-License Insight Scraper API}
+      API_PREFIX: ${API_PREFIX:-/api/v1}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8000,http://localhost:3000}
+      SCRAPER_LOGIN_URL: ${SCRAPER_LOGIN_URL:-https://balcaovirtual.inatro.gov.mz/app/ajax/auth/login.php}
+      SCRAPER_LICENSE_STATUS_URL: ${SCRAPER_LICENSE_STATUS_URL:-https://balcaovirtual.inatro.gov.mz/estado_carta.php}
+      SCRAPER_DRIVING_TICKET_URL: ${SCRAPER_DRIVING_TICKET_URL:-https://balcaovirtual.inatro.gov.mz/consulta_multas.php}
+      SCRAPER_TIMEOUT_SECONDS: ${SCRAPER_TIMEOUT_SECONDS:-20}
+      SCRAPER_MAX_RETRIES: ${SCRAPER_MAX_RETRIES:-3}
+      SCRAPER_BACKOFF_MULTIPLIER: ${SCRAPER_BACKOFF_MULTIPLIER:-0.8}
+      SCRAPER_PROXY_URL: ${SCRAPER_PROXY_URL:-}
+      SCRAPER_VERIFY_SSL: ${SCRAPER_VERIFY_SSL:-true}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

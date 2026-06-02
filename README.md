@@ -1,112 +1,192 @@
 # License Insight Scraper API
 
-**License Insight** is an API developed purely for personal learning purposes using Python and Django. The project performs web scraping from the official INATRO website and summarizes relevant data for a potential mobile application that queries digital driver's license information in Mozambique.
+API em FastAPI para consulta de informacoes de cartas de conducao e multas, com scraping assincrono, validacao rigorosa, retries, logs estruturados e suporte a Docker.
 
+## Funcionalidades
 
->[!WARNING]  
->This project is **not production-ready**. It was built as a hands-on learning experience focused on data collection and organization.
+- API REST com FastAPI e documentacao Swagger em `/docs`.
+- Scraper assincrono com HTTPX.
+- Retries com backoff exponencial para falhas temporarias.
+- Rotacao automatica de User-Agent.
+- Suporte a proxy HTTP/SOCKS5 via variavel de ambiente.
+- Validacao de entrada e saida com Pydantic v2.
+- Logs estruturados com Loguru em stdout.
+- Execucao local em 1 comando com venv isolado.
+- Docker multi-stage pronto para producao.
+- Testes com PyTest e mock do scraper externo.
 
-## Description
-License Insight is designed to collect relevant data from the INATRO website and present this information in an organized and accessible manner. The API serves as an intermediary to facilitate the query of information regarding the digital driver's license in Mozambique, improving accessibility and user experience.
+## Estrutura
 
-## Features
+```text
+.
+├── app/
+│   ├── api/
+│   │   └── routes.py
+│   ├── core/
+│   │   ├── config.py
+│   │   └── logging.py
+│   ├── schemas/
+│   │   └── license.py
+│   ├── scraper/
+│   │   └── engine.py
+│   └── services/
+│       └── license_service.py
+├── tests/
+│   └── test_license_endpoint.py
+├── .env.example
+├── Dockerfile
+├── docker-compose.yml
+├── main.py
+├── requirements.txt
+├── run.bat
+└── run.sh
+```
 
-- Web scraping of data from the official website
-- Summary and organization of collected information
-- Preparation of data for integration into a mobile application
+## Requisitos
 
-## 🚀 Technologies Used
+- Python 3.11 ou superior.
+- Docker e Docker Compose, se preferir executar em container.
 
-- Python 3
-- Django
-- BeautifulSoup
-- Requests
+## Execucao Local
 
-## Dependencies
+Linux/macOS:
 
-The necessary dependencies are listed in the `requirements.txt` file.
-
-## ⚙️ Requirements
-
-To install and run License Insight, you will need the following tools:
-
-- **Python 3**
-- **Git**
-- **Pip3**
-
-### Installation
-
-Execute the following commands to install the dependencies:
-
-- Clone the repository
 ```bash
-git clone https://github.com/PedroNhamirre/License-Insight-Scraper-API.git
-cd License-Insight-Scraper-API/inattro
-```
-- Create and activate a virtual environment for Linux/macOS
-```
-python3 -m venv venv
-source venv/bin/activate    
-```
-- Create and activate a virtual environment for Windows
-```
-python3 -m venv venv
-venv\Scripts\activate     
-```
-- Install the dependencies
-```
-pip3 install -r requirements.txt
-```
-- Apply Django migrations
-```
-python3 manage.py migrate
-```
-- Start the development server
-```
-python3 manage.py runserver
+sh run.sh
 ```
 
-### Main Endpoint
+Windows:
 
-You can test the driver's license query locally at:
+```bat
+run.bat
 ```
-POST http://localhost:8000/api/consulta/
+
+Os scripts criam `.venv`, instalam as dependencias, geram `.env` se necessario e iniciam a API.
+
+## Execucao com Docker
+
+```bash
+docker compose up --build
 ```
-#### Request Body (JSON)
+
+## URLs
+
+- API: `http://localhost:8000`
+- Swagger: `http://localhost:8000/docs`
+- OpenAPI: `http://localhost:8000/openapi.json`
+- Health check: `http://localhost:8000/health`
+
+## Configuracao
+
+As configuracoes sao carregadas de `.env`. Para criar manualmente:
+
+```bash
+cp .env.example .env
+```
+
+Windows:
+
+```bat
+copy .env.example .env
+```
+
+### Variaveis de Ambiente
+
+| Variavel | Padrao | Descricao |
+| --- | --- | --- |
+| `APP_ENV` | `local` | Ambiente da aplicacao: `local`, `development`, `staging` ou `production`. |
+| `APP_DEBUG` | `false` | Ativa modo debug. Use `false` em producao. |
+| `APP_NAME` | `License Insight Scraper API` | Nome da aplicacao na documentacao. |
+| `API_PREFIX` | `/api/v1` | Prefixo das rotas. |
+| `ALLOWED_ORIGINS` | `http://localhost:8000,http://localhost:3000` | Origens CORS separadas por virgula. |
+| `SCRAPER_LOGIN_URL` | URL oficial | Endpoint externo de login. |
+| `SCRAPER_LICENSE_STATUS_URL` | URL oficial | Pagina externa de estado da carta. |
+| `SCRAPER_DRIVING_TICKET_URL` | URL oficial | Pagina externa de multas. |
+| `SCRAPER_TIMEOUT_SECONDS` | `20` | Timeout das requisicoes externas. |
+| `SCRAPER_MAX_RETRIES` | `3` | Numero maximo de tentativas. |
+| `SCRAPER_BACKOFF_MULTIPLIER` | `0.8` | Multiplicador do backoff exponencial. |
+| `SCRAPER_PROXY_URL` | vazio | Proxy opcional. Exemplo: `http://user:pass@host:8080` ou `socks5://host:1080`. |
+| `SCRAPER_VERIFY_SSL` | `true` | Verificacao SSL/TLS. |
+| `LOG_LEVEL` | `INFO` | Nivel de logs: `DEBUG`, `INFO`, `WARNING`, `ERROR`. |
+
+## Endpoint Principal
+
+### Consultar Carta
+
+`POST /api/v1/licenses/consult`
+
+Request:
 
 ```json
 {
-  "codigo": "string",
-  "data_nascimento": "YYYY-MM-DD"
+  "codigo": "123456789",
+  "data_nascimento": "1995-06-15"
 }
 ```
-`codigo:` The license code/number.
 
-`data_nascimento:` The date of birth associated with the license (format: YYYY-MM-DD).
+cURL:
 
+```bash
+curl -X POST "http://localhost:8000/api/v1/licenses/consult" \
+  -H "Content-Type: application/json" \
+  -d '{"codigo":"123456789","data_nascimento":"1995-06-15"}'
+```
 
-#### Response Example (JSON)
+Resposta:
+
 ```json
 {
   "info_carta": {
     "numero_carta": "123456789",
-    "nome_completo": "Pedro Nhamirre",
+    "nome_completo": "Joao Silva",
     "data_nascimento": "1995-06-15",
     "telefone": "+258840000000",
     "endereco": "Av. da Liberdade, Beira",
-    "estado_carta": "Válida",
+    "estado_carta": "Valida",
     "data_inicio_validade": "2020-01-01",
     "data_fim_validade": "2030-01-01",
     "classes_carta": "A, B",
     "categorias_carta": "Ligeiros, Motociclos",
     "doc_number": "A12345678",
-    "pais_de_origem": "Moçambique"
+    "pais_de_origem": "Mocambique"
   },
   "multas": []
 }
 ```
 
+Erro 404:
 
-This endpoint is also available and testable via Swagger at: ```http://localhost:8000/swagger/```
+```json
+{
+  "detail": "Carta de conducao nao encontrada."
+}
+```
 
-License Insight is made with ❤️ por ***Pedro Nhamirre***.
+Erro 502:
+
+```json
+{
+  "detail": "O site externo esta indisponivel no momento."
+}
+```
+
+## Testes
+
+Linux/macOS:
+
+```bash
+.venv/bin/python -m pytest
+```
+
+Windows:
+
+```bat
+.venv\Scripts\python -m pytest
+```
+
+## Producao
+
+- Defina `APP_ENV=production` e `APP_DEBUG=false`.
+- Configure `ALLOWED_ORIGINS` apenas com os dominios autorizados.
+- Use `SCRAPER_PROXY_URL` quando necessario.
+- Monitore latencia, erros `502` e mudancas no HTML do site externo.
